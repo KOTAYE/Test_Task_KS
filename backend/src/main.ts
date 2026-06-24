@@ -27,8 +27,9 @@ async function bootstrap() {
     credentials: true,
   });
 
+  // Bind to 0.0.0.0 so cloud hosts (Render, etc.) can route to the app.
   const port = config.get<number>('PORT') ?? 4000;
-  await app.listen(port);
-  console.log(`🚆 API is running on http://localhost:${port}/api`);
+  await app.listen(port, '0.0.0.0');
+  console.log(`🚆 API is running on port ${port} (prefix /api)`);
 }
 void bootstrap();

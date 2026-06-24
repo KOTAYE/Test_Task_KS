@@ -1,0 +1,23 @@
+# Render Blueprint for the Train Schedule API.
+# Create the database on Neon/Supabase first, then set DATABASE_URL and CORS_ORIGIN
+# in the Render dashboard (they are marked sync:false so they are not stored in git).
+services:
+  - type: web
+    name: train-schedule-api
+    runtime: node
+    rootDir: backend
+    plan: free
+    buildCommand: npm install --include=dev && npx prisma generate && npm run build && npx prisma migrate deploy
+    startCommand: npm run start:prod
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: CORS_ORIGIN
+        sync: false
+      - key: NODE_VERSION
+        value: "20"
