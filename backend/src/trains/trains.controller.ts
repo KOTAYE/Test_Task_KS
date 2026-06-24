@@ -23,8 +23,6 @@ import { TrainsService } from './trains.service';
 export class TrainsController {
   constructor(private readonly trainsService: TrainsService) {}
 
-  // ---- Public (read-only) routes ----
-
   @Get()
   findAll(): Promise<Train[]> {
     return this.trainsService.findAll();
@@ -34,8 +32,6 @@ export class TrainsController {
   findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Train> {
     return this.trainsService.findOne(id);
   }
-
-  // ---- Protected routes (valid JWT required) ----
 
   // Any authenticated user can add a train (basic access).
   @Post()
