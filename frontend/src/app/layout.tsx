@@ -4,6 +4,7 @@ import {
   MantineProvider,
   mantineHtmlProps,
 } from '@mantine/core';
+import { ModalsProvider } from '@mantine/modals';
 import { Notifications } from '@mantine/notifications';
 
 import '@mantine/core/styles.css';
@@ -32,10 +33,12 @@ export default function RootLayout({
       <body>
         <MantineProvider theme={theme} defaultColorScheme="auto">
           <Notifications position="top-right" />
-          <AuthProvider>
-            <AppHeader />
-            <main>{children}</main>
-          </AuthProvider>
+          <ModalsProvider>
+            <AuthProvider>
+              <AppHeader />
+              <main>{children}</main>
+            </AuthProvider>
+          </ModalsProvider>
         </MantineProvider>
       </body>
     </html>

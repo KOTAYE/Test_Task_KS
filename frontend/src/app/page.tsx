@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import {
   Alert,
+  Button,
   Card,
   Center,
   Container,
@@ -11,22 +13,85 @@ import {
   Text,
   Title,
 } from '@mantine/core';
-import { IconAlertCircle, IconTrain } from '@tabler/icons-react';
+import { modals } from '@mantine/modals';
+import { notifications } from '@mantine/notifications';
+import { IconAlertCircle, IconPlus, IconTrain } from '@tabler/icons-react';
 import { TrainTable } from '@/components/train-table';
+import { TrainFormModal } from '@/components/train-form-modal';
+import { api, ApiError } from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
 import { useTrains } from '@/lib/use-trains';
+import { Train } from '@/lib/types';
 
 export default function HomePage() {
-  const { trains, loading, error } = useTrains();
+  const { user } = useAuth();
+  const { trains, loading, error, reload } = useTrains();
+  const [modalOpened, setModalOpened] = useState(false);
+  const [editingTrain, setEditingTrain] = useState<Train | null>(null);
+
+  const canManage = Boolean(user); // USER or ADMIN
+  const canDelete = user?.role === 'ADMIN';
+
+  const openCreate = () => {
+    setEditingTrain(null);
+    setModalOpened(true);
+  };
+
+  const openEdit = (train: Train) => {
+    setEditingTrain(train);
+    setModalOpened(true);
+  };
+
+  const confirmDelete = (train: Train) => {
+    modals.openConfirmModal({
+      title: 'Delete train',
+      centered: true,
+      children: (
+        <Text size="sm">
+          Are you sure you want to delete train{' '}
+          <strong>{train.trainNumber}</strong> ({train.departureStation} →{' '}
+          {train.arrivalStation})? This action cannot be undone.
+        </Text>
+      ),
+      labels: { confirm: 'Delete', cancel: 'Cancel' },
+      confirmProps: { color: 'red' },
+      onConfirm: () => void handleDelete(train),
+    });
+  };
+
+  const handleDelete = async (train: Train) => {
+    try {
+      await api.trains.remove(train.id);
+      notifications.show({ color: 'teal', message: 'Train deleted' });
+      await reload();
+    } catch (err) {
+      notifications.show({
+        color: 'red',
+        title: 'Could not delete train',
+        message:
+          err instanceof ApiError
+            ? err.message
+            : 'Unexpected error, please try again',
+      });
+    }
+  };
 
   return (
     <Container size="lg" py="xl">
       <Stack gap="lg">
-        <div>
-          <Title order={1}>Train Schedule</Title>
-          <Text c="dimmed" mt={4}>
-            Browse upcoming departures and arrivals.
-          </Text>
-        </div>
+        <Group justify="space-between" align="flex-end">
+          <div>
+            <Title order={1}>Train Schedule</Title>
+            <Text c="dimmed" mt={4}>
+              Browse upcoming departures and arrivals.
+            </Text>
+          </div>
+          {canManage && (
+            <Button leftSection={<IconPlus size={18} />} onClick={openCreate}>
+              Add train
+            </Button>
+          )}
+        </Group>
 
         {error && (
           <Alert
@@ -49,7 +114,9 @@ export default function HomePage() {
                 <IconTrain size={40} style={{ opacity: 0.4 }} />
                 <Text fw={600}>No trains scheduled yet</Text>
                 <Text c="dimmed" size="sm">
-                  The schedule is currently empty.
+                  {canManage
+                    ? 'Add the first train to get started.'
+                    : 'The schedule is currently empty.'}
                 </Text>
               </Stack>
             </Center>
@@ -58,11 +125,29 @@ export default function HomePage() {
           <Card withBorder radius="md" p={0}>
             <Group justify="space-between" p="md">
               <Text fw={600}>{trains.length} trains</Text>
+              {!user && (
+                <Text size="sm" c="dimmed">
+                  Log in to manage the schedule
+                </Text>
+              )}
             </Group>
-            <TrainTable trains={trains} />
+            <TrainTable
+              trains={trains}
+              canEdit={canManage}
+              canDelete={canDelete}
+              onEdit={openEdit}
+              onDelete={confirmDelete}
+            />
           </Card>
         )}
       </Stack>
+
+      <TrainFormModal
+        opened={modalOpened}
+        train={editingTrain}
+        onClose={() => setModalOpened(false)}
+        onSuccess={reload}
+      />
     </Container>
   );
 }
