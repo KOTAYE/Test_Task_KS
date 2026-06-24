@@ -1,0 +1,42 @@
+// Prisma schema for the Train Schedule application.
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Application roles. Guests (unauthenticated) get read-only access and therefore
+/// do not need a database record — only registered accounts are stored here.
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Train {
+  id               String   @id @default(uuid())
+  trainNumber      String
+  departureStation String
+  arrivalStation   String
+  departureTime    DateTime
+  arrivalTime      DateTime
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("trains")
+}
