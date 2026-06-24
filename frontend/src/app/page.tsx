@@ -29,8 +29,8 @@ export default function HomePage() {
   const [modalOpened, setModalOpened] = useState(false);
   const [editingTrain, setEditingTrain] = useState<Train | null>(null);
 
-  const canManage = Boolean(user); // USER or ADMIN
-  const canDelete = user?.role === 'ADMIN';
+  const canCreate = Boolean(user); // USER or ADMIN can add trains
+  const canModify = user?.role === 'ADMIN'; // only ADMIN can edit or delete
 
   const openCreate = () => {
     setEditingTrain(null);
@@ -86,7 +86,7 @@ export default function HomePage() {
               Browse upcoming departures and arrivals.
             </Text>
           </div>
-          {canManage && (
+          {canCreate && (
             <Button leftSection={<IconPlus size={18} />} onClick={openCreate}>
               Add train
             </Button>
@@ -114,7 +114,7 @@ export default function HomePage() {
                 <IconTrain size={40} style={{ opacity: 0.4 }} />
                 <Text fw={600}>No trains scheduled yet</Text>
                 <Text c="dimmed" size="sm">
-                  {canManage
+                  {canCreate
                     ? 'Add the first train to get started.'
                     : 'The schedule is currently empty.'}
                 </Text>
@@ -133,8 +133,8 @@ export default function HomePage() {
             </Group>
             <TrainTable
               trains={trains}
-              canEdit={canManage}
-              canDelete={canDelete}
+              canEdit={canModify}
+              canDelete={canModify}
               onEdit={openEdit}
               onDelete={confirmDelete}
             />

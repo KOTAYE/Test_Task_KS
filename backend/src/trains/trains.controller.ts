@@ -37,6 +37,7 @@ export class TrainsController {
 
   // ---- Protected routes (valid JWT required) ----
 
+  // Any authenticated user can add a train (basic access).
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.USER, Role.ADMIN)
@@ -44,9 +45,10 @@ export class TrainsController {
     return this.trainsService.create(dto);
   }
 
+  // Editing is restricted to admins (full CRUD).
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.USER, Role.ADMIN)
+  @Roles(Role.ADMIN)
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateTrainDto,

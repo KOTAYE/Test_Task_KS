@@ -21,8 +21,8 @@ role-based access control.
 
 | Role  | Email               | Password   | Can                          |
 | ----- | ------------------- | ---------- | ---------------------------- |
-| Admin | `admin@example.com` | `admin123` | View, create, edit, **delete** |
-| User  | `user@example.com`  | `user123`  | View, create, edit           |
+| Admin | `admin@example.com` | `admin123` | View, create, **edit, delete** |
+| User  | `user@example.com`  | `user123`  | View, create                 |
 | Guest | — (no login)        | —          | View only                    |
 
 ## ✨ Features
@@ -30,7 +30,7 @@ role-based access control.
 - 🔐 **Authentication** — register / login with hashed passwords (bcrypt) and JWT tokens
 - 👀 **Read-only for guests** — anyone can view the schedule; editing requires a valid JWT
 - 🛠️ **Train management** — create, edit and delete train records
-- 🧑‍✈️ **Role-based access** — `GUEST` (read-only), `USER` (create/edit), `ADMIN` (full CRUD)
+- 🧑‍✈️ **Role-based access** — `GUEST` (read-only), `USER` (create), `ADMIN` (full CRUD)
 - 🗓️ **Friendly UX** — station dropdowns for direction and date-time pickers for the schedule
 - 📱 **Responsive UI** with light/dark mode, loading/error/empty states and notifications
 
@@ -66,7 +66,7 @@ Base URL: `http://localhost:4000/api`
 | `GET`    | `/trains`         | Public            | List all trains             |
 | `GET`    | `/trains/:id`     | Public            | Get one train               |
 | `POST`   | `/trains`         | USER, ADMIN       | Create a train              |
-| `PATCH`  | `/trains/:id`     | USER, ADMIN       | Update a train              |
+| `PATCH`  | `/trains/:id`     | ADMIN             | Update a train              |
 | `DELETE` | `/trains/:id`     | ADMIN             | Delete a train              |
 
 ### Role matrix
@@ -74,8 +74,8 @@ Base URL: `http://localhost:4000/api`
 | Capability      | Guest | User | Admin |
 | --------------- | :---: | :--: | :---: |
 | View schedule   |  ✅   |  ✅  |  ✅   |
-| Create / edit   |  ❌   |  ✅  |  ✅   |
-| Delete          |  ❌   |  ❌  |  ✅   |
+| Create          |  ❌   |  ✅  |  ✅   |
+| Edit / delete   |  ❌   |  ❌  |  ✅   |
 
 ## 🚀 Getting Started (local)
 
