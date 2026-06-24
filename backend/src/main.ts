@@ -19,11 +19,26 @@ async function bootstrap() {
     }),
   );
 
-  // Allow the frontend (configurable) to call the API.
-  const corsOrigin =
-    config.get<string>('CORS_ORIGIN') ?? 'http://localhost:3000';
+  // Allow the frontend to call the API. Accept configured origins plus any
+  // *.vercel.app deployment (preview or production) and local development.
+  const allowedOrigins = (
+    config.get<string>('CORS_ORIGIN') ?? 'http://localhost:3000'
+  )
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
   app.enableCors({
-    origin: corsOrigin.split(',').map((origin) => origin.trim()),
+    origin: (origin, callback) => {
+      const isAllowed =
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        /\.vercel\.app$/.test(origin);
+      callback(
+        isAllowed ? null : new Error(`Origin ${origin} not allowed by CORS`),
+        isAllowed,
+      );
+    },
     credentials: true,
   });
 
