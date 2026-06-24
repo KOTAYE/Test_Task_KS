@@ -24,17 +24,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Restore the session on first load if a token is present.
+  // Restore the session on first load if a token is present. All state updates
+  // happen in async callbacks so the effect body triggers no synchronous render.
   useEffect(() => {
-    if (!getToken()) {
-      setLoading(false);
-      return;
-    }
-    api.auth
-      .me()
-      .then(setUser)
+    let active = true;
+    const restore = getToken() ? api.auth.me() : Promise.resolve(null);
+    restore
+      .then((restored) => {
+        if (active) setUser(restored);
+      })
       .catch(() => clearToken())
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {

@@ -1,8 +1,8 @@
 # 🚆 Train Schedule Application
 
 A full-stack train schedule application where users can register, log in, and manage a
-list of trains. Built with **NestJS**, **PostgreSQL** (Prisma) on the backend and
-**Next.js** with **Mantine** on the frontend, secured with JWT-based authentication and
+list of trains. Built with **NestJS** + **PostgreSQL** (Prisma) on the backend and
+**Next.js** + **Mantine** on the frontend, secured with JWT authentication and
 role-based access control.
 
 > Test task for the Full Stack Internship position at Kevych Solutions.
@@ -12,18 +12,19 @@ role-based access control.
 - 🔐 **Authentication** — register / login with hashed passwords (bcrypt) and JWT tokens
 - 👀 **Read-only for guests** — anyone can view the schedule; editing requires a valid JWT
 - 🛠️ **Train management** — create, edit and delete train records
-- 🧑‍✈️ **Role-based access** — `GUEST` (read-only), `USER` (basic), `ADMIN` (full CRUD)
-- 🗓️ **Friendly UX** — station dropdowns for direction and date/time pickers for schedule
+- 🧑‍✈️ **Role-based access** — `GUEST` (read-only), `USER` (create/edit), `ADMIN` (full CRUD)
+- 🗓️ **Friendly UX** — station dropdowns for direction and date-time pickers for the schedule
+- 📱 **Responsive UI** with light/dark mode, loading/error/empty states and notifications
 
 ## 🧱 Tech Stack
 
-| Layer    | Technology                              |
-| -------- | --------------------------------------- |
-| Language | TypeScript                              |
-| Backend  | NestJS, Prisma, PostgreSQL              |
-| Auth     | Passport JWT, bcrypt                     |
-| Frontend | Next.js (App Router), React, Mantine    |
-| Tooling  | Docker Compose (local PostgreSQL)       |
+| Layer    | Technology                                   |
+| -------- | -------------------------------------------- |
+| Language | TypeScript                                   |
+| Backend  | NestJS, Prisma ORM, PostgreSQL               |
+| Auth     | Passport JWT, bcrypt                          |
+| Frontend | Next.js (App Router), React, Mantine          |
+| Tooling  | Docker Compose (local PostgreSQL)            |
 
 ## 📂 Project Structure
 
@@ -35,20 +36,91 @@ role-based access control.
 └── README.md
 ```
 
-## 🚀 Getting Started
+## 🔌 API Overview
 
-> Detailed setup instructions for the backend and frontend will be documented here as the
-> project takes shape. See `backend/README.md` and `frontend/README.md` for per-app notes.
+Base URL: `http://localhost:4000/api`
+
+| Method   | Endpoint          | Access            | Description                 |
+| -------- | ----------------- | ----------------- | --------------------------- |
+| `POST`   | `/auth/register`  | Public            | Register, returns JWT       |
+| `POST`   | `/auth/login`     | Public            | Log in, returns JWT         |
+| `GET`    | `/auth/me`        | Authenticated     | Current user                |
+| `GET`    | `/trains`         | Public            | List all trains             |
+| `GET`    | `/trains/:id`     | Public            | Get one train               |
+| `POST`   | `/trains`         | USER, ADMIN       | Create a train              |
+| `PATCH`  | `/trains/:id`     | USER, ADMIN       | Update a train              |
+| `DELETE` | `/trains/:id`     | ADMIN             | Delete a train              |
+
+### Role matrix
+
+| Capability      | Guest | User | Admin |
+| --------------- | :---: | :--: | :---: |
+| View schedule   |  ✅   |  ✅  |  ✅   |
+| Create / edit   |  ❌   |  ✅  |  ✅   |
+| Delete          |  ❌   |  ❌  |  ✅   |
+
+## 🚀 Getting Started (local)
 
 ### Prerequisites
 
-- Node.js 20+
-- Docker (for local PostgreSQL) — or any PostgreSQL 14+ instance
+- **Node.js 20+**
+- **Docker** (for local PostgreSQL) — or any PostgreSQL 14+ instance
 
-### 1. Start the database
+### 1. Clone & start the database
 
 ```bash
-docker compose up -d
+git clone <your-repo-url>
+cd Test_Task_KS
+docker compose up -d        # starts PostgreSQL on localhost:5432
 ```
 
-_More steps to follow._
+### 2. Backend
+
+```bash
+cd backend
+npm install
+cp .env.example .env         # defaults already match docker-compose
+npm run prisma:migrate       # create the database tables
+npm run prisma:seed          # seed demo accounts + sample trains
+npm run start:dev            # API on http://localhost:4000/api
+```
+
+### 3. Frontend (in a second terminal)
+
+```bash
+cd frontend
+npm install
+cp .env.example .env.local   # points at http://localhost:4000/api
+npm run dev                  # app on http://localhost:3000
+```
+
+Open **http://localhost:3000** 🎉
+
+### 🔑 Demo accounts (created by the seed)
+
+| Role  | Email               | Password   |
+| ----- | ------------------- | ---------- |
+| Admin | `admin@example.com` | `admin123` |
+| User  | `user@example.com`  | `user123`  |
+
+Or register a new account — new users get the `USER` role by default.
+
+## 🧪 A note on the data model
+
+The schedule table shows **Train №**, **Direction** (`from → to`), **Departure**,
+**Arrival** and **Station** (the boarding/departure station). A train's direction is set
+with two station dropdowns, and the times are chosen with date-time pickers, as required.
+
+## 🌐 Deployment
+
+The project is deployment-ready for free tiers:
+
+- **Database** → Neon / Supabase (managed PostgreSQL)
+- **Backend** → Render (build: `npm install && npm run build && npm run prisma:deploy`,
+  start: `npm run start:prod`)
+- **Frontend** → Vercel (root directory `frontend`, env `NEXT_PUBLIC_API_URL`)
+
+See [backend/README.md](backend/README.md) and [frontend/README.md](frontend/README.md)
+for per-app details.
+
+<!-- Live demo links will be added here once deployed. -->
