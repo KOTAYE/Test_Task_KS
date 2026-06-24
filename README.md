@@ -7,6 +7,24 @@ role-based access control.
 
 > Test task for the Full Stack Internship position at Kevych Solutions.
 
+## 🌍 Live Demo
+
+| Service   | URL                                                  |
+| --------- | ---------------------------------------------------- |
+| Frontend  | https://test-task-ks.vercel.app                      |
+| API       | https://train-schedule-api-ad8o.onrender.com/api     |
+
+> The API is hosted on Render's free tier and may take ~30–60 s to wake up on the first
+> request, after which it responds normally.
+
+### 🔑 Demo accounts
+
+| Role  | Email               | Password   | Can                          |
+| ----- | ------------------- | ---------- | ---------------------------- |
+| Admin | `admin@example.com` | `admin123` | View, create, edit, **delete** |
+| User  | `user@example.com`  | `user123`  | View, create, edit           |
+| Guest | — (no login)        | —          | View only                    |
+
 ## ✨ Features
 
 - 🔐 **Authentication** — register / login with hashed passwords (bcrypt) and JWT tokens
@@ -123,4 +141,5 @@ The project is deployment-ready for free tiers:
 See [backend/README.md](backend/README.md) and [frontend/README.md](frontend/README.md)
 for per-app details.
 
-<!-- Live demo links will be added here once deployed. -->
+This project is deployed with **Neon** (PostgreSQL), **Render** (API) and **Vercel**
+(frontend) — see the [Live Demo](#-live-demo) section above.
